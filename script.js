@@ -1,42 +1,55 @@
-// script.js - BURAYI DİLEDİĞİN GİBİ DÜZENLE
+// script.js - VERİ TABANI VE OYUN MANTIĞI
 const deneyimHavuzu = [
-    { resim: "d01.png", link: "https://instagram.com/p/1", platform: "Instagram", puan: "+10" },
-    { resim: "d02.png", link: "https://instagram.com/p/2", platform: "Instagram", puan: "-10" },
-    { resim: "d03.png", link: "https://facebook.com/1",   platform: "Facebook",  puan: "+15" },
-    { resim: "d04.png", link: "https://facebook.com/2",   platform: "Facebook",  puan: "-15" },
-    { resim: "d05.png", link: "https://youtube.com/1",    platform: "YouTube",   puan: "0" },
-    { resim: "d01.png", link: "https://instagram.com/p/1", platform: "Instagram", puan: "+10" },
-    { resim: "d02.png", link: "https://instagram.com/p/2", platform: "Instagram", puan: "-10" },
-    { resim: "d03.png", link: "https://facebook.com/1",   platform: "Facebook",  puan: "+15" },
-    { resim: "d04.png", link: "https://facebook.com/2",   platform: "Facebook",  puan: "-15" },
-    { resim: "d05.png", link: "https://youtube.com/1",    platform: "YouTube",   puan: "0" },
-    { resim: "d01.png", link: "https://instagram.com/p/1", platform: "Instagram", puan: "+10" },
-    { resim: "d02.png", link: "https://instagram.com/p/2", platform: "Instagram", puan: "-10" },
-    { resim: "d03.png", link: "https://facebook.com/1",   platform: "Facebook",  puan: "+15" },
-    { resim: "d04.png", link: "https://facebook.com/2",   platform: "Facebook",  puan: "-15" },
-    { resim: "d05.png", link: "https://youtube.com/1",    platform: "YouTube",   puan: "0" },
-    { resim: "d01.png", link: "https://instagram.com/p/1", platform: "Instagram", puan: "+10" },
-    { resim: "d02.png", link: "https://instagram.com/p/2", platform: "Instagram", puan: "-10" },
-    { resim: "d03.png", link: "https://facebook.com/1",   platform: "Facebook",  puan: "+15" },
-    { resim: "d04.png", link: "https://facebook.com/2",   platform: "Facebook",  puan: "-15" },
-    { resim: "d05.png", link: "https://youtube.com/1",    platform: "YouTube",   puan: "0" },
-    // Buraya d20'ye kadar istediğin kadar kart ekle...
+    // --- TWITTER (X) BAĞLANTILARI ---
+    { resim: "d01.png", link: "https://x.com/melahat24998", platform: "X", puan: "+10" },
+    { resim: "d02.png", link: "https://x.com/Rustem5234", platform: "X", puan: "-10" },
+    { resim: "d03.png", link: "https://x.com/Samet1069691", platform: "X", puan: "+15" },
+
+    // --- INSTAGRAM BAĞLANTILARI ---
+    { resim: "d04.png", link: "https://www.instagram.com/p/DTEKmoBDFNS/", platform: "Instagram", puan: "-15" },
+    { resim: "d05.png", link: "https://www.instagram.com/p/DTEIbZrDEHz/", platform: "Instagram", puan: "0" },
+    { resim: "d06.png", link: "https://www.instagram.com/p/DTED0XeDOUA/", platform: "Instagram", puan: "+20" },
+    { resim: "d07.png", link: "https://www.instagram.com/p/DTEAzmgDBwP/", platform: "Instagram", puan: "-20" },
+    { resim: "d08.png", link: "https://www.instagram.com/p/DTDxBDTDDOh/", platform: "Instagram", puan: "+10" },
+    { resim: "d09.png", link: "https://www.instagram.com/p/DTDh_a8jEUI/", platform: "Instagram", puan: "-5" },
+    { resim: "d10.png", link: "https://www.instagram.com/p/DTBy2UhjEvJ/", platform: "Instagram", puan: "0" },
+    { resim: "d11.png", link: "https://www.instagram.com/p/DTBt913DI7A/", platform: "Instagram", puan: "+15" },
+    { resim: "d12.png", link: "https://www.instagram.com/p/DTBnzeBDJ4N/", platform: "Instagram", puan: "-10" },
+    { resim: "d13.png", link: "https://www.instagram.com/p/DTBcFzYDI9v/", platform: "Instagram", puan: "+5" },
+
+    // --- TIKTOK BAĞLANTILARI ---
+    { resim: "d14.png", link: "https://www.tiktok.com/@sineklidag/video/7592762275459632405", platform: "TikTok", puan: "-15" },
+    { resim: "d15.png", link: "https://www.tiktok.com/@sineklidag/video/7592761962371501332", platform: "TikTok", puan: "0" },
+    { resim: "d16.png", link: "https://www.tiktok.com/@sineklidag/video/7592761557008813332", platform: "TikTok", puan: "+10" },
+
+    // --- GENEL PLATFORMLAR (İleride genişletilebilir) ---
+    { resim: "d17.png", link: "https://www.facebook.com", platform: "Facebook", puan: "0" },
+    { resim: "d18.png", link: "https://www.youtube.com", platform: "YouTube", puan: "0" }
 ];
 
-// OYUN MANTIĞI (Buraya dokunman gerekmez)
-const grid = document.getElementById('sonuc-grid');
-if(grid) {
-    // Havuzdan rastgele 5 kart seçer
-    const secilenler = deneyimHavuzu.sort(() => 0.5 - Math.random()).slice(0, 5);
+// KARTLARI YÜKLEME VE KARIŞTIRMA FONKSİYONU
+function kartlariYukle() {
+    const grid = document.getElementById('sonuc-grid');
+    if(!grid) return;
+
+    grid.innerHTML = ""; // Mevcut kartları temizle (Karıştır butonu için)
+
+    // Havuzu karıştır ve 5 adet seç
+    const secilenler = [...deneyimHavuzu].sort(() => 0.5 - Math.random()).slice(0, 5);
     
     secilenler.forEach(kart => {
+        // Puan rengini belirle (+ ise yeşil, - ise kırmızı, 0 ise gri)
+        let puanSinifi = "notr";
+        if (kart.puan.includes('+')) puanSinifi = "arti";
+        else if (kart.puan.includes('-')) puanSinifi = "eksi";
+
         grid.innerHTML += `
             <div class="kart-kutu" onclick="kartAc(this, '${kart.link}')">
                 <div class="kart-ic">
                     <div class="front"><img src="img/kart_arka.png"></div>
                     <div class="back">
-                        <img src="img/${kart.resim}">
-                        <div class="puan-tag ${kart.puan.includes('-') ? 'eksi' : 'arti'}">${kart.puan}</div>
+                        <img src="img/${kart.resim}" onerror="this.src='https://via.placeholder.com/150x220?text=${kart.platform}'">
+                        <div class="puan-tag ${puanSinifi}">${kart.puan}</div>
                     </div>
                 </div>
             </div>`;
@@ -44,6 +57,10 @@ if(grid) {
 }
 
 function kartAc(el, link) {
+    if(el.classList.contains('flipped')) return; // Çift tıklamayı engelle
     el.classList.add('flipped'); // Kartı döndür
-    setTimeout(() => { window.location.href = link; }, 1500); // 1.5 sn sonra siteye git
+    setTimeout(() => { window.location.href = link; }, 1500); // 1.5 saniye sonra yönlendir
 }
+
+// Sayfa ilk açıldığında kartları otomatik yükle
+document.addEventListener('DOMContentLoaded', kartlariYukle);
