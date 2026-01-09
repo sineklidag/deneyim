@@ -1,0 +1,17 @@
+body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+.container { width: 95%; max-width: 1000px; text-align: center; padding: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+img { width: 100%; border-radius: 8px; display: block; }
+
+/* Kart Dönme Efekti */
+.kart-kutu { perspective: 1000px; height: 220px; cursor: pointer; }
+.kart-ic { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+.flipped .kart-ic { transform: rotateY(180deg); }
+.front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; overflow: hidden; border: 2px solid #444; }
+.back { transform: rotateY(180deg); background: white; color: black; }
+
+/* Puan Etiketleri */
+.puan-tag { position: absolute; bottom: 5px; width: 100%; padding: 5px 0; font-weight: bold; font-size: 1.2rem; }
+.arti { background: #27ae60; color: white; }
+.eksi { background: #c0392b; color: white; }
+.notr { background: #7f8c8d; color: white; }
