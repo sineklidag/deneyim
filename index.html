@@ -3,16 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kart Oyunu - Giriş</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Sineklidağ'a Giriş</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Segoe UI', sans-serif;
+            background: #000;
+        }
+
+        /* GİRİŞ PERDESİ */
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 200;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; color: #eee;
+            transition: opacity 1s ease; padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #intro-overlay h2 { font-style: italic; margin-bottom: 30px; color: #888; font-size: 1.1rem; }
+
+        .intro-choice {
+            background: none; border: 1px solid #444; color: #aaa;
+            padding: 15px; margin: 8px 0; cursor: pointer;
+            width: 100%; max-width: 400px; border-radius: 5px;
+            font-size: 0.95rem;
+        }
+
+        /* ANA İÇERİK */
+        .content-layer {
+            position: relative; z-index: 10; height: 100vh;
+            display: flex; flex-direction: column; opacity: 0;
+            transition: opacity 2s ease; pointer-events: none;
+        }
+
+        /* VİDEO ARKAPLAN */
+        #video-fixed-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 1; overflow: hidden;
+        }
+        #bg-video { width: 100%; height: 100%; object-fit: cover; }
+
+        .header-area { 
+            text-align: center; padding: 15px; z-index: 10; color: white; 
+            text-shadow: 0 0 10px #000;
+        }
+
+        /* HÜCRE SİSTEMİ (Grid) */
+        .container { 
+            flex: 1; display: flex; justify-content: center; 
+            align-items: center; padding: 20px;
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; width: 100%; max-width: 500px; 
+        }
+
+        /* YENİ RENKLİ HÜCRELER */
+        .choice-cell {
+            text-decoration: none;
+            height: 180px; /* Mobilde dikey uzunluk */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        /* Sol Hücre: OLAY (Kırmızı) */
+        .olay-cell {
+            background: rgba(139, 0, 0, 0.3); /* Yarı saydam koyu kırmızı */
+            color: #ff9999;
+        }
+
+        /* Sağ Hücre: TEPKİ (Yeşil) */
+        .tepki-cell {
+            background: rgba(0, 100, 0, 0.3); /* Yarı saydam koyu yeşil */
+            color: #99ff99;
+        }
+
+        /* Mobilde basılma efekti (Active) */
+        .choice-cell:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Masaüstünde hover hala çalışsın */
+        @media (min-width: 600px) {
+            .choice-cell:hover {
+                transform: scale(1.05);
+                border-color: rgba(255,255,255,0.5);
+            }
+            .olay-cell:hover { background: rgba(139, 0, 0, 0.7); color: white; }
+            .tepki-cell:hover { background: rgba(0, 100, 0, 0.7); color: white; }
+        }
+
+        .cell-title { font-weight: bold; font-size: 1.4rem; letter-spacing: 2px; }
+        .cell-desc { font-size: 0.7rem; margin-top: 10px; opacity: 0.8; text-transform: uppercase; }
+
+        .footer-note { 
+            padding: 15px; text-align: center; font-size: 0.7rem; 
+            color: #555; background: rgba(0,0,0,0.6); 
+        }
+
+        #mute-btn {
+            position: fixed; top: 15px; right: 15px; z-index: 150;
+            background: rgba(0,0,0,0.5); color: white; border: 1px solid #444;
+            padding: 8px 12px; cursor: pointer; border-radius: 20px; font-size: 0.7rem; display: none;
+        }
+
+        /* MOBİL DÜZEN */
+        @media (max-width: 480px) {
+            .grid { grid-template-columns: 1fr; } /* Alt alta diz */
+            .choice-cell { height: 140px; }
+            .olay-cell { background: rgba(139, 0, 0, 0.5); } /* Mobilde biraz daha az saydam yapalım ki belli olsun */
+            .tepki-cell { background: rgba(0, 100, 0, 0.5); }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>BİR TÜR SEÇ</h1>
-        <div class="grid">
-            <a href="secim.html?tur=olay" class="main-card"><img src="img/olay.png" alt="Olay"></a>
-            <a href="secim.html?tur=tepki" class="main-card"><img src="img/tepki.png" alt="Tepki"></a>
-        </div>
+
+    <div id="intro-overlay">
+        <h2>"Bu mahalleye girmek var, çıkmak yok...<br>İçeri girme konusunda gerçekten emin misin?"</h2>
+        <button class="intro-choice" onclick="enterSineklidag()">Evet, hem de adım gibi eminim!</button>
+        <button class="intro-choice" onclick="enterSineklidag()">Bilemedim, başka zaman mı gelsem acaba?</button>
+        <button class="intro-choice" onclick="enterSineklidag()">Aslında bir arkadaşa bakıp çıkacaktım...</button>
     </div>
+
+    <button id="mute-btn" onclick="toggleMute()">Sesi Kapat</button>
+
+    <div id="video-fixed-container">
+        <video loop muted playsinline id="bg-video">
+            <source src="img/sineklidag.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="content-layer" id="main-content">
+        <div class="header-area">
+            <h1>SİNEKLİDAĞ</h1>
+        </div>
+
+        <div class="container">
+            <div class="grid">
+                <a href="secim.html?tur=olay" class="choice-cell olay-cell">
+                    <div class="cell-title">OLAY</div>
+                    <div class="cell-desc">Vuku Bulan Hadiseler</div>
+                </a>
+                
+                <a href="secim.html?tur=tepki" class="choice-cell tepki-cell">
+                    <div class="cell-title">TEPKİ</div>
+                    <div class="cell-desc">Meydana Gelen Akisler</div>
+                </a>
+            </div>
+        </div>
+
+        <footer class="footer-note">
+            Anadolu Üniversitesi GİT YL - Dijital Görüntü Dersi
+        </footer>
+    </div>
+
+    <script>
+        const video = document.getElementById('bg-video');
+        const overlay = document.getElementById('intro-overlay');
+        const content = document.getElementById('main-content');
+        const muteBtn = document.getElementById('mute-btn');
+
+        function enterSineklidag() {
+            video.muted = false;
+            video.play();
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                content.style.opacity = '1';
+                content.style.pointerEvents = 'auto';
+                muteBtn.style.display = 'block';
+            }, 1000);
+        }
+
+        function toggleMute() {
+            if (video.muted) {
+                video.muted = false;
+                muteBtn.innerText = "Sesi Kapat";
+            } else {
+                video.muted = true;
+                muteBtn.innerText = "Sesi Aç";
+            }
+        }
+    </script>
 </body>
 </html>
