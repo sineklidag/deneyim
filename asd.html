@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sineklidağ Oyunu Etkileşim Alanı</title>
+    <style>
+        /* CSS AYARLARI */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background 1s, filter 2s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Gündüz ve Gece Modları */
+        .day-mode { background: #f0f0f0; color: #1a1a1a; }
+        .night-mode { background: #0a0a0a; color: #ffffff; }
+
+        /* Ekran Kararma (Idle) Efekti */
+        .idle-darken { filter: brightness(0.2) grayscale(0.8); }
+
+        .header-area {
+            text-align: center;
+            padding: 40px 20px;
+            z-index: 10;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        .main-card {
+            position: relative;
+            text-decoration: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+
+        .main-card:hover { transform: scale(1.02); }
+
+        .main-card img {
+            width: 100%;
+            display: block;
+        }
+
+        .card-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        /* Sinekler */
+        .fly {
+            position: fixed;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 9999;
+            user-select: none;
+        }
+
+        /* Alt Bilgi */
+        .footer-note {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            z-index: 10;
+        }
+
+        #mode-toggle {
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .day-mode #mode-toggle { background: #1a1a1a; color: white; }
+        .night-mode #mode-toggle { background: white; color: #1a1a1a; }
+    </style>
+</head>
+<body class="day-mode">
+
+    <div class="header-area">
+        <h1>Sineklidağ Oyunu Etkileşim Alanı</h1>
+        <button id="mode-toggle">GECE/GÜNDÜZ DEĞİŞTİR</button>
+    </div>
+
+    <div class="container">
+        <div class="grid">
+            <a href="secim.html?tur=olay" class="main-card">
+                <img src="img/olay.png" alt="Olay">
+                <div class="card-text">Bir olay vuku buldu</div>
+            </a>
+            <a href="secim.html?tur=tepki" class="main-card">
+                <img src="img/tepki.png" alt="Tepki">
+                <div class="card-text">Bir tepki meydana geldi</div>
+            </a>
+        </div>
+    </div>
+
+    <footer class="footer-note">
+        Anadolu Üniversitesi Görsel İletişim Tasarımı YL - Dijital Görüntü Dersi
+    </footer>
+
+    <audio id="fly-sound" loop src="sinek.mp3"></audio>
+
+    <script>
+        // SCRIPT AYARLARI
+        let flyCount = 1;
+        let lastMove = Date.now();
+        const flySound = document.getElementById('fly-sound');
+        const flies = [];
+
+        // 1. Gece/Gündüz Modu
+        document.getElementById('mode-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('night-mode');
+            document.body.classList.toggle('day-mode');
+        });
+
+        // 2. Sinek Oluşturma
+        function createFly() {
+            const fly = document.createElement('div');
+            fly.className = 'fly';
+            fly.innerHTML = '🪰';
+            document.body.appendChild(fly);
+            return {
+                el: fly,
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                targetX: 0,
+                targetY: 0
+            };
+        }
+
+        // İlk sineği oluştur
+        flies.push(createFly());
+
+        // 3. Hareket Takibi
+        document.addEventListener('mousemove', (e) => {
+            lastMove = Date.now();
+            document.body.classList.remove('idle-darken');
+            
+            // Sinekleri temizle (Sadece ana sinek kalsın)
+            while(flies.length > 1) {
+                const f = flies.pop();
+                document.body.removeChild(f.el);
+            }
+            
+            // Sesi ve sinek sayısını sıfırla
+            flyCount = 1;
+            if(flySound) flySound.volume = 0.1;
+
+            // Ana sinek fareyi takip etsin
+            flies[0].targetX = e.clientX;
+            flies[0].targetY = e.clientY;
+
+            if (flySound && flySound.paused) flySound.play().catch(() => {});
+        });
+
+        // 4. Ana Döngü (Sineklerin artışı ve Kararma)
+        setInterval(() => {
+            const idleTime = Date.now() - lastMove;
+
+            // Fare durdukça sinek ekle (Her 2 saniyede bir yeni sinek)
+            if (idleTime > 2000 && flies.length < 50) {
+                flies.push(createFly());
+                // Sesi artır
+                if(flySound && flySound.volume < 0.9) {
+                    flySound.volume += 0.05;
+                }
+            }
+
+            // 10 saniye hareket olmazsa ekranı karart
+            if (idleTime > 10000) {
+                document.body.classList.add('idle-darken');
+            }
+
+            // Tüm sinekleri hareket ettir
+            flies.forEach((f, index) => {
+                if (index === 0 && idleTime < 2000) {
+                    // Ana sinek fareye gider
+                    f.x += (f.targetX - f.x) * 0.1;
+                    f.y += (f.targetY - f.y) * 0.1;
+                } else {
+                    // Diğerleri rastgele uçar
+                    f.x += (Math.random() - 0.5) * 20;
+                    f.y += (Math.random() - 0.5) * 20;
+                }
+                f.el.style.left = f.x + 'px';
+                f.el.style.top = f.y + 'px';
+            });
+        }, 100);
+    </script>
+</body>
+</html>
